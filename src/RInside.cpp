@@ -2,7 +2,8 @@
 //
 // RInside.cpp: R/C++ interface class library -- Easier R embedding into C++
 //
-// Copyright (C) 2009 - 2010 Dirk Eddelbuettel
+// Copyright (C) 2009        Dirk Eddelbuettel
+// Copyright (C) 2010        Dirk Eddelbuettel and Romain Francois
 //
 // This file is part of RInside.
 //
@@ -26,9 +27,9 @@ bool verbose = false;
 const char *programName = "RInside";
 
 #ifdef WIN32
-// on Windows, we need to provide setenv which is in the file setenv.c here
-#include "setenv.c"
-extern int optind;
+    // on Windows, we need to provide setenv which is in the file setenv.c here
+    #include "setenv.c"
+    extern int optind;
 #endif
 
 RInside::~RInside() {		// now empty as MemBuf is internal
@@ -44,7 +45,16 @@ RInside::~RInside() {		// now empty as MemBuf is internal
     logTxt("RInside::dtor END", verbose);
 }
 
+RInside::RInside() {
+    initialize( 0, 0 );
+}
+
 RInside::RInside(const int argc, const char* const argv[]) {
+    initialize( argc, argv ); 
+}
+
+// TODO: use a vector<string> would make all this a bit more readable 
+void RInside::initialize(const int argc, const char* const argv[]){
     logTxt("RInside::ctor BEGIN", verbose);
 
     verbose_m = false; 		// Default is false
@@ -55,8 +65,11 @@ RInside::RInside(const int argc, const char* const argv[]) {
     for (int i = 0; R_VARS[i] != NULL; i+= 2) {
 	if (getenv(R_VARS[i]) == NULL) { // if env variable is not yet set
 	    if (setenv(R_VARS[i],R_VARS[i+1],1) != 0){
-		perror("ERROR: couldn't set/replace an R environment variable");
-		exit(1);
+		//perror("ERROR: couldn't set/replace an R environment variable");
+		//exit(1);
+		throw std::runtime_error(std::string("Could not set R environment variable ") +
+					 std::string(R_VARS[i]) + std::string(" to ") +  
+					 std::string(R_VARS[i+1]));
 	    }
 	}
     }
@@ -84,21 +97,15 @@ RInside::RInside(const int argc, const char* const argv[]) {
     R_SetParams(&Rst);
 
     //ptr_R_CleanUp = littler_CleanUp; --- we do that in the destructor
-
+    global_env = R_GlobalEnv ;
+    
     autoloads();    		// Force all default package to be dynamically required */
 
-    SEXP s_argv = R_NilValue;
     if ((argc - optind) > 1){    	// for argv vector in Global Env */
-	int nargv = argc - optind - 1;	// Build string vector 
-	PROTECT(s_argv = allocVector(STRSXP,nargv));
-	for (int i = 0; i <nargv; i++){
-	    STRING_PTR(s_argv)[i] = mkChar(argv[i+1+optind]);
-	}
-	UNPROTECT(1);
-    
-	setVar(install("argv"),s_argv,R_GlobalEnv);
+	Rcpp::CharacterVector s_argv( argv+(1+optind), argv+argc );
+	assign(s_argv, "argv");
     } else {
-	setVar(install("argv"),R_NilValue,R_GlobalEnv);
+	assign(R_NilValue, "argv") ;
     }
   
     init_rand();    			// for tempfile() to work correctly */
@@ -119,8 +126,9 @@ void RInside::init_tempdir(void) {
     }
     R_TempDir = (char*) tmp;
     if (setenv("R_SESSION_TMPDIR",tmp,1) != 0){
-	perror("Fatal Error: couldn't set/replace R_SESSION_TMPDIR!");
-	exit(1);
+	//perror("Fatal Error: couldn't set/replace R_SESSION_TMPDIR!");
+	//exit(1);
+	throw std::runtime_error(std::string("Could not set / replace R_SESSION_TMPDIR to ") + std::string(tmp));
     }
 }
 
@@ -137,93 +145,91 @@ void RInside::autoloads() {
 
     #include "RInsideAutoloads.h"
  
-    /* Autoload default packages and names from autoloads.h
-     *
-     * This function behaves in almost every way like
-     * R's autoload:
-     * function (name, package, reset = FALSE, ...)
-     * {
-     *     if (!reset && exists(name, envir = .GlobalEnv, inherits = FALSE))
-     *        stop("an object with that name already exists")
-     *     m <- match.call()
-     *     m[[1]] <- as.name("list")
-     *     newcall <- eval(m, parent.frame())
-     *     newcall <- as.call(c(as.name("autoloader"), newcall))
-     *     newcall$reset <- NULL
-     *     if (is.na(match(package, .Autoloaded)))
-     *        assign(".Autoloaded", c(package, .Autoloaded), env = .AutoloadEnv)
-     *     do.call("delayedAssign", list(name, newcall, .GlobalEnv,
-     *                                                         .AutoloadEnv))
-     *     invisible()
-     * }
-     *
-     * What's missing is the updating of the string vector .Autoloaded with 
-     * the list of packages, which by my code analysis is useless and only 
-     * for informational purposes.
-     *
-     */
-    //void autoloads(void){
+    // Autoload default packages and names from autoloads.h
+    //
+    // This function behaves in almost every way like
+    // R's autoload:
+    // function (name, package, reset = FALSE, ...)
+    // {
+    //     if (!reset && exists(name, envir = .GlobalEnv, inherits = FALSE))
+    //        stop("an object with that name already exists")
+    //     m <- match.call()
+    //     m[[1]] <- as.name("list")
+    //     newcall <- eval(m, parent.frame())
+    //     newcall <- as.call(c(as.name("autoloader"), newcall))
+    //     newcall$reset <- NULL
+    //     if (is.na(match(package, .Autoloaded)))
+    //        assign(".Autoloaded", c(package, .Autoloaded), env = .AutoloadEnv)
+    //     do.call("delayedAssign", list(name, newcall, .GlobalEnv,
+    //                                                         .AutoloadEnv))
+    //     invisible()
+    // }
+    //
+    // What's missing is the updating of the string vector .Autoloaded with 
+    // the list of packages, which by my code analysis is useless and only 
+    // for informational purposes.
+    //
+    //
+    
+    // we build the call : 
+    //
+    //  delayedAssign( NAME, 
+    //  	autoloader( name = NAME, package = PACKAGE), 
+    //  	.GlobalEnv, 
+    //  	.AutoloadEnv )
+    //  	
+    //  where : 
+    //  - PACKAGE is updated in a loop
+    //  - NAME is updated in a loop
+    //  
+    //
+     
+    int i,j, idx=0, nobj ;
+    Rcpp::Language delayed_assign_call(Rcpp::Function("delayedAssign"), 
+				       R_NilValue,     // arg1: assigned in loop 
+				       R_NilValue,     // arg2: assigned in loop 
+				       global_env,
+				       global_env.find(".AutoloadEnv")
+				       ) ;
+    Rcpp::Language::Proxy delayed_assign_name  = delayed_assign_call[1];
 
-    SEXP da, dacall, al, alcall, AutoloadEnv, name, package;
-    int i,j, idx=0, errorOccurred, ptct;
-
-    /* delayedAssign call*/
-    PROTECT(da = Rf_findFun(Rf_install("delayedAssign"), R_GlobalEnv));
-    PROTECT(AutoloadEnv = Rf_findVar(Rf_install(".AutoloadEnv"), R_GlobalEnv));
-    if (AutoloadEnv == R_NilValue){
-	fprintf(stderr,"%s: Cannot find .AutoloadEnv!\n", programName);
-	exit(1);
-    }
-    PROTECT(dacall = allocVector(LANGSXP,5));
-    SETCAR(dacall,da);
-    /* SETCAR(CDR(dacall),name); */          /* arg1: assigned in loop */
-    /* SETCAR(CDR(CDR(dacall)),alcall); */  /* arg2: assigned in loop */
-    SETCAR(CDR(CDR(CDR(dacall))),R_GlobalEnv); /* arg3 */
-    SETCAR(CDR(CDR(CDR(CDR(dacall)))),AutoloadEnv); /* arg3 */
-
-    /* autoloader call */
-    PROTECT(al = Rf_findFun(Rf_install("autoloader"), R_GlobalEnv));
-    PROTECT(alcall = allocVector(LANGSXP,3));
-    SET_TAG(alcall, R_NilValue); /* just like do_ascall() does */
-    SETCAR(alcall,al);
-    /* SETCAR(CDR(alcall),name); */          /* arg1: assigned in loop */
-    /* SETCAR(CDR(CDR(alcall)),package); */  /* arg2: assigned in loop */
-
-    ptct = 5;
-    for(i = 0; i < packc; i++){
-	idx += (i != 0)? packobjc[i-1] : 0;
-	for (j = 0; j < packobjc[i]; j++){
-	    /*printf("autload(%s,%s)\n",packobj[idx+j],pack[i]);*/
-
-	    PROTECT(name = NEW_CHARACTER(1));
-	    PROTECT(package = NEW_CHARACTER(1));
-	    SET_STRING_ELT(name, 0, COPY_TO_USER_STRING(packobj[idx+j]));
-	    SET_STRING_ELT(package, 0, COPY_TO_USER_STRING(pack[i]));
-
-	    /* Set up autoloader call */
-	    PROTECT(alcall = allocVector(LANGSXP,3));
-	    SET_TAG(alcall, R_NilValue); /* just like do_ascall() does */
-	    SETCAR(alcall,al);
-	    SETCAR(CDR(alcall),name);
-	    SETCAR(CDR(CDR(alcall)),package);
-
-	    /* Setup delayedAssign call */
-	    SETCAR(CDR(dacall),name);
-	    SETCAR(CDR(CDR(dacall)),alcall);
-
-	    R_tryEval(dacall,R_GlobalEnv,&errorOccurred);
-	    if (errorOccurred){
-		fprintf(stderr,"%s: Error calling delayedAssign!\n", 
-			programName);
-		exit(1);
+    Rcpp::Language autoloader_call(Rcpp::Function("autoloader"),
+				   Rcpp::Named( "name", R_NilValue) ,  // arg1 : assigned in loop 
+				   Rcpp::Named( "package", R_NilValue) // arg2 : assigned in loop 
+				   );
+    Rcpp::Language::Proxy autoloader_name = autoloader_call[1];
+    Rcpp::Language::Proxy autoloader_pack = autoloader_call[2];
+    delayed_assign_call[2] = autoloader_call ;
+    
+    try { 
+    	for( i=0; i<packc; i++){
+    		
+	    // set the 'package' argument of the autoloader call */
+	    autoloader_pack = pack[i] ;
+		
+	    nobj = packobjc[i] ; 
+	    for (j = 0; j < nobj ; j++){
+		
+		// set the 'name' argument of the autoloader call */ 
+		autoloader_name = packobj[idx+j] ;
+		   
+		// Set the 'name' argument of the delayedAssign call */
+		delayed_assign_name = packobj[idx+j] ;
+		    
+		// evaluate the call */
+		delayed_assign_call.eval() ;
+		    
 	    }
-
-	    ptct += 3;
-	}
+	    idx += packobjc[i] ;
+    	}
+    } catch( std::exception& ex){
+	// fprintf(stderr,"%s: Error calling delayedAssign:\n %s", programName, ex.what() );
+	// exit(1);	    
+	throw std::runtime_error(std::string("Error calling delayedAssign: ") + std::string(ex.what()));
     }
-    UNPROTECT(ptct);
 }
 
+// this is a non-throwing version returning an error code
 int RInside::parseEval(const std::string & line, SEXP & ans) {
     ParseStatus status;
     SEXP cmdSexp, cmdexpr = R_NilValue;
@@ -231,15 +237,15 @@ int RInside::parseEval(const std::string & line, SEXP & ans) {
 
     mb_m.add((char*)line.c_str());
     
-    PROTECT(cmdSexp = allocVector(STRSXP, 1));
-    SET_STRING_ELT(cmdSexp, 0, mkChar((char*)mb_m.getBufPtr()));
+    PROTECT(cmdSexp = Rf_allocVector(STRSXP, 1));
+    SET_STRING_ELT(cmdSexp, 0, Rf_mkChar(mb_m.getBufPtr()));
 
     cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
 
     switch (status){
     case PARSE_OK:
-	/* Loop is needed here as EXPSEXP might be of length > 1 */
-	for(i = 0; i < length(cmdexpr); i++){
+	// Loop is needed here as EXPSEXP might be of length > 1 
+	for(i = 0; i < Rf_length(cmdexpr); i++){
 	    ans = R_tryEval(VECTOR_ELT(cmdexpr, i),NULL,&errorOccurred);
 	    if (errorOccurred) {
 		fprintf(stderr, "%s: Error in evaluating R code (%d)\n", programName, status);
@@ -247,13 +253,13 @@ int RInside::parseEval(const std::string & line, SEXP & ans) {
 		return 1;
 	    }
 	    if (verbose_m) {
-		PrintValue(ans);
+		Rf_PrintValue(ans);
 	    }
 	}
 	mb_m.rewind();
 	break;
     case PARSE_INCOMPLETE:
-	/* need to read another line */
+	// need to read another line 
 	break;
     case PARSE_NULL:
 	fprintf(stderr, "%s: ParseStatus is null (%d)\n", programName, status);
@@ -278,77 +284,24 @@ int RInside::parseEval(const std::string & line, SEXP & ans) {
     return 0;
 }
 
-int RInside::parseEvalQ(const std::string & line) {
+void RInside::parseEvalQ(const std::string & line) {
     SEXP ans;
     int rc = parseEval(line, ans);
-    return rc;
-}
-
-// assign for vector< vector< double > >
-void RInside::assign(const std::vector< std::vector< double > > & mat, const std::string & nam) {
-    int nx = mat.size();
-    int ny = mat[0].size();
-    SEXP sexpmat = PROTECT(allocMatrix(REALSXP, nx, ny));
-    for(int i = 0; i < nx; i++) {
-	for(int j = 0; j < ny; j++) {
-	    REAL(sexpmat)[i + nx*j] = mat[i][j];
-	}
+    if (rc != 0) {
+	throw std::runtime_error(std::string("Error evaluating: ") + line);
     }
-    setVar(install((char*) nam.c_str()), sexpmat, R_GlobalEnv);  // now set it
-    UNPROTECT(1);
 }
 
-// assign for vector< vector< int > >
-void RInside::assign(const std::vector< std::vector< int > > & mat, const std::string & nam) {
-    int nx = mat.size();
-    int ny = mat[0].size();
-    SEXP sexpmat = PROTECT(allocMatrix(INTSXP, nx, ny));
-    for(int i = 0; i < nx; i++) {
-	for(int j = 0; j < ny; j++) {
-	    INTEGER(sexpmat)[i + nx*j] = mat[i][j];
-	}
+SEXP RInside::parseEval(const std::string & line) {
+    SEXP ans;
+    int rc = parseEval(line, ans);
+    if (rc != 0) {
+	throw std::runtime_error(std::string("Error evaluating: ") + line);
     }
-    setVar(install((char*) nam.c_str()), sexpmat, R_GlobalEnv);  // now set it
-    UNPROTECT(1);
+    return ans;
 }
 
-// assign for vector< double > 
-void RInside::assign(const std::vector< double > & vec, const std::string & nam) {
-    int nx = vec.size();
-    SEXP sexpvec = PROTECT(allocVector(REALSXP, nx));
-    for(int i = 0; i < nx; i++) {
-	REAL(sexpvec)[i] = vec[i];
-    }
-    setVar(install((char*) nam.c_str()), sexpvec, R_GlobalEnv);  // now set it
-    UNPROTECT(1);
+Rcpp::Environment::Binding RInside::operator[]( const std::string& name ){
+    return global_env[name]; 
 }
 
-// assign for vector< string > 
-void RInside::assign(const std::vector< std::string > & vec, const std::string & nam) {
-    int len = (int)vec.size();
-    SEXP sexpvec = PROTECT(allocVector(STRSXP, len));
-    for (int i = 0; i < len; i++) {
-        SET_STRING_ELT(sexpvec, i, mkChar(vec[i].c_str()));
-    }
-    setVar(install((char*) nam.c_str()), sexpvec, R_GlobalEnv);  // now set it
-    UNPROTECT(1);
-}
-
-
-// assign for vector< int > 
-void RInside::assign(const std::vector< int > & vec, const std::string & nam) {
-    int nx = vec.size();
-    SEXP sexpvec = PROTECT(allocVector(INTSXP, nx));
-    for(int i = 0; i < nx; i++) {
-	INTEGER(sexpvec)[i] = vec[i];
-    }
-    setVar(install((char*) nam.c_str()), sexpvec, R_GlobalEnv);  // now set it
-    UNPROTECT(1);
-}
-
-void RInside::assign(const std::string & txt, const std::string & nam) {
-    SEXP value = PROTECT(allocVector(STRSXP, 1));
-    SET_STRING_ELT(value, 0, mkChar(txt.c_str()));
-    setVar(install((char*) nam.c_str()), value, R_GlobalEnv);  // now set it
-    UNPROTECT(1);
-}
