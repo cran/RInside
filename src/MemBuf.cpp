@@ -21,9 +21,9 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <cstring>
+#include <string>
 
-#include "MemBuf.h"
+#include <MemBuf.h>
 
 extern bool verbose;
 extern const char *programName;
@@ -44,8 +44,8 @@ void MemBuf::rewind(){
     buffer.clear() ;
 }
 
-void MemBuf::add(char *buf){
-    int buflen = strlen(buf);
+void MemBuf::add(const std::string& buf){
+    int buflen = buf.size() ;
     while ( ( buflen + buffer.size() ) >= buffer.capacity() ) {
 	resize();
     }

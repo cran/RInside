@@ -20,7 +20,11 @@
 // You should have received a copy of the GNU General Public License
 // along with RInside.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "RInside.h"
+#include <RInside.h>
+#include <Callbacks.h>
+
+RInside* RInside::instance_ = 0 ;
+
 #include <sys/time.h>		// gettimeofday
 
 bool verbose = false;
@@ -28,7 +32,7 @@ const char *programName = "RInside";
 
 #ifdef WIN32
     // on Windows, we need to provide setenv which is in the file setenv.c here
-    #include "setenv.c"
+    #include "setenv/setenv.c"
     extern int optind;
 #endif
 
@@ -43,24 +47,39 @@ RInside::~RInside() {		// now empty as MemBuf is internal
     //#endif
     Rf_endEmbeddedR(0);
     logTxt("RInside::dtor END", verbose);
+    instance_ = 0 ;
 }
 
-RInside::RInside() {
-    initialize( 0, 0 );
+RInside::RInside() 
+#ifdef RINSIDE_CALLBACKS 
+	: callbacks(0)
+#endif
+{
+    initialize( 0, 0, false );
 }
 
-RInside::RInside(const int argc, const char* const argv[]) {
-    initialize( argc, argv ); 
+RInside::RInside(const int argc, const char* const argv[], const bool loadRcpp)
+#ifdef RINSIDE_CALLBACKS 
+: callbacks(0)
+#endif 
+{
+    initialize( argc, argv, loadRcpp ); 
 }
 
 // TODO: use a vector<string> would make all this a bit more readable 
-void RInside::initialize(const int argc, const char* const argv[]){
+void RInside::initialize(const int argc, const char* const argv[], const bool loadRcpp) {
     logTxt("RInside::ctor BEGIN", verbose);
 
+    if( instance_ ){
+    	throw std::runtime_error( "can only have one RInside instance" ) ;
+    } else {
+    	instance_ = this ;	
+    }
+    
     verbose_m = false; 		// Default is false
 
     // generated as littler.h via from svn/littler/littler.R
-    #include "RInsideEnvVars.h"
+    #include <RInsideEnvVars.h>
 
     for (int i = 0; R_VARS[i] != NULL; i+= 2) {
 	if (getenv(R_VARS[i]) == NULL) { // if env variable is not yet set
@@ -100,6 +119,13 @@ void RInside::initialize(const int argc, const char* const argv[]){
     global_env = R_GlobalEnv ;
     
     autoloads();    		// Force all default package to be dynamically required */
+
+    // if asked for, load Rcpp 
+    if (loadRcpp) {
+	Rf_eval(Rf_lang2(Rf_install( "suppressMessages" ), 
+			 Rf_lang2(Rf_install( "require" ), Rf_mkString("Rcpp"))),
+		R_GlobalEnv);
+    }
 
     if ((argc - optind) > 1){    	// for argv vector in Global Env */
 	Rcpp::CharacterVector s_argv( argv+(1+optind), argv+argc );
@@ -143,7 +169,7 @@ void RInside::init_rand(void) {	/* set seed for tempfile()  */
 
 void RInside::autoloads() {
 
-    #include "RInsideAutoloads.h"
+    #include <RInsideAutoloads.h>  
  
     // Autoload default packages and names from autoloads.h
     //
@@ -292,16 +318,124 @@ void RInside::parseEvalQ(const std::string & line) {
     }
 }
 
-SEXP RInside::parseEval(const std::string & line) {
+RInside::Proxy RInside::parseEval(const std::string & line) {
     SEXP ans;
     int rc = parseEval(line, ans);
     if (rc != 0) {
 	throw std::runtime_error(std::string("Error evaluating: ") + line);
     }
-    return ans;
+    return Proxy( ans );
 }
 
 Rcpp::Environment::Binding RInside::operator[]( const std::string& name ){
     return global_env[name]; 
 }
 
+RInside& RInside::instance(){
+	return *instance_ ;
+}
+
+/* callbacks */
+
+#ifdef RINSIDE_CALLBACKS
+
+void Callbacks::Busy_( int which ){
+    R_is_busy = static_cast<bool>( which ) ;
+    Busy( R_is_busy ) ;	
+}
+
+int Callbacks::ReadConsole_( const char* prompt, unsigned char* buf, int len, int addtohistory ){
+    try {
+	std::string res( ReadConsole( prompt, static_cast<bool>(addtohistory) ) ) ;
+		
+	/* At some point we need to figure out what to do if the result is
+	 * longer than "len"... For now, just truncate. */
+		 
+	int l = res.size() ;
+	int last = (l>len-1)?len-1:l ;
+	strncpy( (char*)buf, res.c_str(), last ) ;
+	buf[last] = 0 ;
+	return 1 ;
+    } catch( const std::exception& ex){
+	return -1 ;	
+    }
+}
+
+
+void Callbacks::WriteConsole_( const char* buf, int len, int oType ){
+    if( len ){
+	buffer.assign( buf, buf + len - 1 ) ;
+	WriteConsole( buffer, oType) ;
+    }
+}
+
+void RInside_ShowMessage( const char* message ){
+    RInside::instance().callbacks->ShowMessage( message ) ;	
+}
+
+void RInside_WriteConsoleEx( const char* message, int len, int oType ){
+    RInside::instance().callbacks->WriteConsole_( message, len, oType ) ;		
+}
+
+int RInside_ReadConsole(const char *prompt, unsigned char *buf, int len, int addtohistory){
+    return RInside::instance().callbacks->ReadConsole_( prompt, buf, len, addtohistory ) ;
+}
+
+void RInside_ResetConsole(){
+    RInside::instance().callbacks->ResetConsole() ;
+}
+
+void RInside_FlushConsole(){                                       
+    RInside::instance().callbacks->FlushConsole() ;
+}
+
+void RInside_ClearerrConsole(){
+    RInside::instance().callbacks->CleanerrConsole() ;
+}
+
+void RInside_Busy( int which ){
+    RInside::instance().callbacks->Busy_(which) ;
+}
+
+void RInside::set_callbacks(Callbacks* callbacks_){
+    callbacks = callbacks_ ;
+	
+#ifdef WIN32
+    // do something to tell user that he doesn't get this
+#else
+
+    /* short circuit the callback function pointers */
+    if( callbacks->has_ShowMessage() ){
+	ptr_R_ShowMessage = RInside_ShowMessage ;
+    }
+    if( callbacks->has_ReadConsole() ){
+	ptr_R_ReadConsole = RInside_ReadConsole;
+    }
+    if( callbacks->has_WriteConsole() ){
+    	ptr_R_WriteConsoleEx = RInside_WriteConsoleEx ;
+    	ptr_R_WriteConsole = NULL;
+	}
+    if( callbacks->has_ResetConsole() ){
+	ptr_R_ResetConsole = RInside_ResetConsole;
+    }
+    if( callbacks->has_FlushConsole() ){
+    	ptr_R_FlushConsole = RInside_FlushConsole;
+    }
+    if( callbacks->has_CleanerrConsole() ){
+    	ptr_R_ClearerrConsole = RInside_ClearerrConsole;
+    }
+    if( callbacks->has_Busy() ){
+    	ptr_R_Busy = RInside_Busy;
+    }
+    
+    R_Outputfile = NULL;
+    R_Consolefile = NULL;    
+#endif    
+}
+
+void RInside::repl(){
+    R_ReplDLLinit();
+    while( R_ReplDLLdo1() > 0 ) {}
+}
+
+#endif

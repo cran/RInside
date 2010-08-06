@@ -1,3 +1,63 @@
+2010-08-06  Dirk Eddelbuettel  <edd@debian.org>
+
+	* Release 0.2.3
+
+	* src/Makevars: Set emacs header for Makefile mode
+	* src/Makevars.win: Set emacs header for Makefile mode
+
+2010-07-09  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/include/RInside.h: New argument to constructor to select
+	loading of Rcpp
+	* src/RInside.cpp: Idem, also load Rcpp more quietly
+
+2010-07-05  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/standard/rinside_sample3.rcpp: Simpler with new Rcpp API
+	* inst/examples/standard/rinside_sample4.rcpp: Idem
+
+2010-06-16  Romain Francois <romain@r-enthusiasts.com>
+
+	* inst/examples/standard/rinside_sample9.cpp: new example illustrating
+	how to expose a C++ function to the embedded R
+
+	* inst/examples/standard/rinside_module_sample0.cpp: new example illustrating
+	how to use an Rcpp module from RInside
+
+	* inst/include/*.h: moved the headers to include so that there is only one copy
+
+	* inst/include/MemBuf.h: change from signature of add to use
+	const std::string& instead of const char*
+
+	* src/RInside.cpp: loading the Rcpp package
+
+2010-04-21  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/MemBuf.cpp: Added #include <string.h> so that even Solaris sees
+	  strlen() -- with thanks to Brian Ripley
+
+	* src/Makefile: Remove -Wall option which Solaris cc does not
+	  support -- with thanks to Brian Ripley
+
+2010-04-05  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/RInside.cpp: Add #ifdef to Callback code to break on Windows
+
+2010-03-26  Romain Francois <romain@r-enthusiasts.com>
+
+	* src/RInside.h: the Proxy class is moved inside RInside and
+  	  parseEval now returns a Proxy so that the proxy class does its job
+	  implicitely
+
+	* inst/examples/standard/rinside_sample8.cpp: simplify the example to
+	  implicit use of the Proxy class
+
+2010-03-25  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/RInside.h: New Proxy class with operator T() to borrow
+	  Rcpp's automatic wrappers
+	* inst/examples/standard/rinside_sample8.cpp: Use Proxy()
+
 2010-03-22  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION: Increase Version: to 0.2.2
@@ -46,21 +106,21 @@
 	* src/MemBuf.h: MemBuf simplified using std::string
 
 	* src/RInside.h: RInside gains an operator[](string) to allow
-	treating the RInside instance as a proxy to the global environment
-	so that we can do: RInside R; R["x"] = 10 ; All the actual work
-	is done by the Rcpp::Environment class
+	  treating the RInside instance as a proxy to the global environment
+	  so that we can do: RInside R; R["x"] = 10 ; All the actual work
+	  is done by the Rcpp::Environment class
 
 2010-02-04  Romain Francois <francoisromain@free.fr>
 
 	* RInside::autoloads revisited with the new Rcpp api
 
 	* RInside gains a default constructor to be used when there
-	is no command line arguments
+	  is no command line arguments
 
 2010-01-28  Romain Francois <francoisromain@free.fr>
 
 	* src/RInside.{h,cpp}: Retire assign(vector<vector<double>> )
-	because now this can be taken care of by template specialization
+	  because now this can be taken care of by template specialization
 
 	* DESCRIPTION: require Rcpp 0.7.3.6
 
@@ -76,14 +136,14 @@
 2010-01-27  Romain Francois <francoisromain@free.fr>
 
 	* src/RInside.{h,cpp}: include Rcpp.h and use the Rf_ prefixed R API
-	functions. stop using macros from Rdefines because they don't
-	work with R_NOREMAP
+	  functions. stop using macros from Rdefines because they don't
+	  work with R_NOREMAP
 
 	* src/RInside.{h,cpp}: using the new Rcpp API assign becomes
-	a template and let Rcpp::Environment.assign deal with the type
-	of the object and how to wrap it. specializations of wrap
-	for vector<vector<int>> and vector<vector<double>> are created
-	to maintain original interface.
+	  a template and let Rcpp::Environment.assign deal with the type
+	  of the object and how to wrap it. specializations of wrap
+	  for vector<vector<int>> and vector<vector<double>> are created
+	  to maintain original interface.
 
 2010-01-06  Dirk Eddelbuettel  <edd@debian.org>
 

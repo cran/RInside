@@ -1,7 +1,7 @@
 Package: RInside
 Title: C++ classes to embed R in C++ applications
-Version: 0.2.2
-Date: $Date: 2010-03-22 21:20:10 -0500 (Mon, 22 Mar 2010) $
+Version: 0.2.3
+Date: $Date: 2010-08-06 07:33:14 -0500 (Fri, 06 Aug 2010) $
 Author: Dirk Eddelbuettel and Romain Francois
 Maintainer: Dirk Eddelbuettel and Romain Francois
         <RomainAndDirk@r-enthusiasts.com>
@@ -16,10 +16,11 @@ Description: C++ classes to embed R in C++ applications The RInside
  Several examples are provided below the examples/ directory of the
         installed package, and Doxygen-generated documentation of the
         C++ classes is included as well.
-Depends: R (>= 2.10.0), Rcpp (>= 0.7.10)
-SystemRequirements: None
+Depends: R (>= 2.10.0), Rcpp (>= 0.8.5)
+LinkingTo: Rcpp
+SystemRequirements: GNU make
 URL: http://dirk.eddelbuettel.com/code/rinside.html
 License: GPL (>= 2)
-Packaged: 2010-03-23 02:20:35 UTC; edd
+Packaged: 2010-08-06 12:45:21 UTC; edd
 Repository: CRAN
-Date/Publication: 2010-03-23 07:26:39
+Date/Publication: 2010-08-06 14:23:35

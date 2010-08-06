@@ -14,11 +14,11 @@ int main(int argc, char *argv[]) {
     R["y"] = 20 ;
 
     R.parseEvalQ("z <- x + y") ;        // R statement evaluation and result 
-    int sum = Rcpp::as<int>( R["z"] );  // retrieval via access using [] and as() wrapper
+    int sum = R["z"];  			// retrieval via access using [] and implicit wrapper
     std::cout << "10 + 20 = " << sum << std::endl ; 
 
     // we can also return the value directly
-    sum = Rcpp::as<int>( R.parseEval("z <- x + y") ); 
+    sum = R.parseEval("x + y") ;
     std::cout << "10 + 20 = " << sum << std::endl ; 
 
     exit(0);

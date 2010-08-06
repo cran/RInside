@@ -1,4 +1,4 @@
-// -*- mode: C++; c-indent-level: 4; c-basic-offset: 4; tab-width: 8 -*-
+// -*- mode: C++; c-indent-level: 4; c-basic-offset: 4; tab-width: 4 -*-
 //
 // RInside.h: R/C++ interface class library -- Easier R embedding into C++
 //
@@ -20,20 +20,11 @@
 // You should have received a copy of the GNU General Public License
 // along with RInside.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <string>
-#include <vector>
-#include <iostream>
+#ifndef RINSIDE_RINSIDE_H
+#define RINSIDE_RINSIDE_H
 
-#include <Rcpp.h>
-
-#include <Rembedded.h>
-#ifndef WIN32
-#define R_INTERFACE_PTRS
-#include <Rinterface.h>
-#endif
-#include <R_ext/RStartup.h>
-
-#include "MemBuf.h"
+#include <RInsideCommon.h>
+#include <Callbacks.h>
 
 class RInside {
 private:
@@ -46,35 +37,57 @@ private:
     void init_rand(void);
     void autoloads(void);
     
-    void initialize(const int argc, const char* const argv[] ) ;
+    void initialize(const int argc, const char* const argv[], const bool loadRcpp ) ;
+
+    static RInside* instance_ ;
+    
+#ifdef RINSIDE_CALLBACKS
+    Callbacks* callbacks ;
+    friend void RInside_ShowMessage( const char* message) ;
+    friend void RInside_WriteConsoleEx( const char* message, int len, int oType ) ;
+    friend int RInside_ReadConsole(const char *prompt, unsigned char *buf, int len, int addtohistory) ;
+    friend void RInside_ResetConsole() ;
+    friend void RInside_FlushConsole() ;
+    friend void RInside_ClearerrConsole() ;
+    friend void RInside_Busy(int which) ;
+#endif 
 
 public:
     int  parseEval(const std::string & line, SEXP &ans); // parse line, return in ans; error code rc
     void parseEvalQ(const std::string & line);		 // parse line, no return (throws on error)
-    SEXP parseEval(const std::string & line);		 // parse line, return SEXP (throws on error)
+
+    class Proxy {
+	public:
+	    Proxy(SEXP xx): x(xx) { };
+	
+	    template <typename T>
+	    operator T() {
+			return ::Rcpp::as<T>(x);
+	    }
+	private:
+	    Rcpp::RObject x;
+	};
+
+    Proxy parseEval(const std::string & line);		 // parse line, return SEXP (throws on error)
 
     template <typename T> 
     void assign(const T& object, const std::string& nam) {
-	global_env.assign( nam, object ) ;
+		global_env.assign( nam, object ) ;
     }
     
     RInside() ;
-    RInside(const int argc, const char* const argv[]);
+    RInside(const int argc, const char* const argv[], const bool loadRcpp=false);
     ~RInside();
     
     Rcpp::Environment::Binding operator[]( const std::string& name ) ;
     
+    static RInside& instance() ;
+    
+#ifdef RINSIDE_CALLBACKS
+    void set_callbacks(Callbacks* callbacks_) ;
+	void repl() ;
+#endif
+
 };
 
-// simple logging help
-inline void logTxtFunction(const char* file, const int line, const char* expression, const bool verbose) {
-    if (verbose) {
-	std::cout << file << ":" << line << " expression: " << expression << std::endl;
-    }
-}
-
-#ifdef logTxt
-#undef logTxt
 #endif
-//#define logTxt(x, b) logTxtFunction(__FILE__, __LINE__, x, b);
-#define logTxt(x, b) 
