@@ -70,7 +70,7 @@ RInside::RInside(const int argc, const char* const argv[], const bool loadRcpp)
 void RInside::initialize(const int argc, const char* const argv[], const bool loadRcpp) {
     logTxt("RInside::ctor BEGIN", verbose);
 
-    if( instance_ ){
+    if (instance_) {
     	throw std::runtime_error( "can only have one RInside instance" ) ;
     } else {
     	instance_ = this ;	
@@ -108,24 +108,25 @@ void RInside::initialize(const int argc, const char* const argv[], const bool lo
     int R_argc = (sizeof(R_argv) - sizeof(R_argv_opt) ) / sizeof(R_argv[0]);
     Rf_initEmbeddedR(R_argc, (char**)R_argv);
 
-    R_ReplDLLinit(); 		// this is to populate the repl console buffers 
+    R_ReplDLLinit(); 			// this is to populate the repl console buffers 
 
     structRstart Rst;
     R_DefParams(&Rst);
     Rst.R_Interactive = (Rboolean) FALSE;	// sets interactive() to eval to false 
     R_SetParams(&Rst);
 
-    //ptr_R_CleanUp = littler_CleanUp; --- we do that in the destructor
     global_env = R_GlobalEnv ;
     
-    autoloads();    		// Force all default package to be dynamically required */
-
-    // if asked for, load Rcpp 
-    if (loadRcpp) {
-	Rf_eval(Rf_lang2(Rf_install( "suppressMessages" ), 
-			 Rf_lang2(Rf_install( "require" ), Rf_mkString("Rcpp"))),
-		R_GlobalEnv);
+    if (loadRcpp) {			// if asked for, load Rcpp (before the autoloads)
+	// Rf_install is used best by first assigning like this so that symbols get into the symbol table 
+	// where they cannot be garbage collected; doing it on the fly does expose a minuscule risk of garbage  
+	// collection -- with thanks to Doug Bates for the explanation and Luke Tierney for the heads-up
+	SEXP suppressMessagesSymbol = Rf_install("suppressMessages");
+	SEXP requireSymbol = Rf_install("require");
+	Rf_eval(Rf_lang2(suppressMessagesSymbol, Rf_lang2(requireSymbol, Rf_mkString("Rcpp"))), R_GlobalEnv);
     }
+
+    autoloads();    			// loads all default packages
 
     if ((argc - optind) > 1){    	// for argv vector in Global Env */
 	Rcpp::CharacterVector s_argv( argv+(1+optind), argv+argc );

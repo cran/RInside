@@ -1,3 +1,85 @@
+2011-04-24  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION: Release 0.2.4
+
+2011-04-20  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/mpi/*cpp: Minor updates and simplifications
+
+2011-04-19  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION: Updated Description, also state current Windows
+	run-time issue more prominently
+
+ 	* inst/examples/standard/rinside_sample1.cpp: Minor simplification
+	* inst/examples/standard/rinside_sample2.cpp: Idem
+	* inst/examples/standard/rinside_sample3.cpp: Idem
+	* inst/examples/standard/rinside_sample5.cpp: Idem
+	* inst/examples/standard/rinside_sample7.cpp: Idem
+
+2011-04-16  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/NEWS: Added, at long last, with backfills based on the
+	ChangeLog and blog postings
+
+	* R/RInsidePaths.R (RInsideCxxFlags): Do not use quotes around path
+
+2011-04-03  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/qt/: Moved merged SVN+PNG files back into top-level
+
+	* inst/examples/qt/qtdensitySVG/qtdensity.pro: No longer need to set
+	-Wno-unused-parameter as Rcpp 0.9.3 has a fix
+
+2011-04-01  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/qt/qtdensitySVG/qtdensity.cpp: Merged the PNG and SVG
+	version by using a boolean based on whether cairoDevice loaded or not
+
+2011-03-25  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/qt/: Split qtdensity example into default (png) and
+	svg variants as svg needs cairoDevice and has a clipping bug
+
+2011-03-16  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/qt/qtdensity.h: Small rearrangements and
+	simplifications
+
+2011-03-15  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/qt/*: Added new example combining RInside with Qt
+	illustrating the standard 'slider to select bandwidth for density
+	estimate' example found in demo(tkdensity) and other places
+
+2011-03-06  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/standard/rinside_sample11.cpp: New example in
+	response to r-help question by Paul Smith
+
+2011-02-17  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/standard/rinside_sample6.cpp: Updated to
+	direct `R["a"] = a;' assignments
+
+2011-01-26  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/standard/rinside_sample10.cpp: New example in
+	response to r-devel question by Wayne Zhang
+
+2011-01-20  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/RInside.cpp (initialize): Assign results of Rf_install to avoid
+	any risk of garbage collection -- with thanks to Doug and Luke
+
+2010-12-26  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/RInside.cpp (initialize): If Rcpp is requested, load it
+	explicitly before we call autoload() for all R default packages
+	(with thanks to Murray Stokely for the patch)
+
+	* Changelog: Moved up from inst/ for easier C-x 4 a use
+
 2010-08-06  Dirk Eddelbuettel  <edd@debian.org>
 
 	* Release 0.2.3
@@ -63,7 +145,7 @@
 	* DESCRIPTION: Increase Version: to 0.2.2
 
 	* .Rbuildignore: Added to exclude volatile Doxygen-generated docs
-	   from, zip-archives will be made available as for Rcpp
+	  from tarball, zip-archives will be made available as for Rcpp
 
 2010-03-20  Dirk Eddelbuettel  <edd@debian.org>
 
@@ -267,6 +349,8 @@
  	  vars with prior values (to e.g. allow non-standard R_HOME)
 
 2009-07-19  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION: Release 0.0.2
 
 	* src/MemBuf.cpp: Added one-line patch by Miguel Lechón in add()
 	  method to correctly re-set pointer---with a bug Thanks! to Miguel
