@@ -1,6 +1,46 @@
+2011-12-06  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/RInside.cpp: Applied (a slightly simpler versions of) a patch
+	by James Bates which restores RInside on Windows -- at long last!
+
+	* inst/include/RInsideCommon.h: Define #Win32 in #WIN32 is set so
+	that we get some symbols from Rembedded.h
+
+	* inst/THANKS: Add James Bates for help with RInside on Windows
+	
+	* doxyfile: Add inst/examples/wt to example path
+
+	* cleanup: Some fixes ensuring qt and wt example can be cleaned
+	
+	* .Rbuildignore: Add some local files from qt and wt examples
+
+2011-12-04  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/wt/wtdensity.cpp: bandwidth value capped at 200 like qt
+
+	* inst/examples/qt/qtdensity.cpp: Default to svg creation via the
+	svg() now in base R, ie remove both the test for cairoDevice and the
+	fallback use of png graphics code; we still need to filter the svg file
+	* inst/examples/qt/qtdensity.h: adjust accordingly
+
+	* cleanup: Clean qt and wt example directories too
+
+2011-11-24  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/wt: New example directory 'wt' providing a Webtoolkit
+	(aka 'witty') based density slider application
+	* inst/examples/wt/wtdensity.cpp: Application in less than 200 lines
+	* inst/examples/wt/Makefile: Makefile to build and launch (on Ubuntu)
+
+2011-11-20  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/qt/qtdensity.pro: Use QMAKE_LIBS, not QMAKE_LFLAGS
+
 2011-04-24  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION: Release 0.2.4
+
+	* doxyfile: Updated path settings
 
 2011-04-20  Dirk Eddelbuettel  <edd@debian.org>
 
