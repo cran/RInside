@@ -13,7 +13,7 @@
         106,
         88,
         500,
-        209
+        210
     };
     const char *packobj[] = {
         "AirPassengers",
@@ -1109,6 +1109,7 @@
         "implicitGeneric",
         "inheritedSlotNames",
         "initFieldArgs",
+        "initRefFields",
         "initialize",
         "insertMethod",
         "insertSource",

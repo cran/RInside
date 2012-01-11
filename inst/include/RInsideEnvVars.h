@@ -9,12 +9,11 @@
         "R_HOME","/usr/lib/R",
         "R_INCLUDE_DIR","/usr/share/R/include",
         "R_INSTALL_PKG","RInside",
-        "R_LIBRARY_DIR","/home/edd/svn/rinside/pkg.Rcheck",
-        "R_LIBS","/home/edd/svn/rinside/pkg.Rcheck:/home/edd/svn/rinside/pkg.Rcheck",
+        "R_LIBRARY_DIR","/usr/local/lib/R/site-library",
         "R_LIBS_SITE","/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library",
         "R_LIBS_USER","~/R/x86_64-pc-linux-gnu-library/2.14",
         "R_OSTYPE","unix",
-        "R_PACKAGE_DIR","/home/edd/svn/rinside/pkg.Rcheck/RInside",
+        "R_PACKAGE_DIR","/usr/local/lib/R/site-library/RInside",
         "R_PACKAGE_NAME","RInside",
         "R_PAPERSIZE","letter",
         "R_PAPERSIZE_USER","letter",
@@ -27,7 +26,7 @@
         "R_SYSTEM_ABI","linux,gcc,gxx,gfortran,?",
         "R_TEXI2DVICMD","/usr/bin/texi2dvi",
         "R_UNZIPCMD","/usr/bin/unzip",
-        "R_VERSION","2.14.0",
+        "R_VERSION","2.14.1",
         "R_ZIPCMD","/usr/bin/zip",
         NULL
     };
