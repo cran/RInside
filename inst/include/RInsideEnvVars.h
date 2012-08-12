@@ -11,7 +11,7 @@
         "R_INSTALL_PKG","RInside",
         "R_LIBRARY_DIR","/usr/local/lib/R/site-library",
         "R_LIBS_SITE","/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library",
-        "R_LIBS_USER","~/R/x86_64-pc-linux-gnu-library/2.14",
+        "R_LIBS_USER","~/R/x86_64-pc-linux-gnu-library/2.15",
         "R_OSTYPE","unix",
         "R_PACKAGE_DIR","/usr/local/lib/R/site-library/RInside",
         "R_PACKAGE_NAME","RInside",
@@ -20,13 +20,12 @@
         "R_PDFVIEWER","/usr/bin/xdg-open",
         "R_PLATFORM","x86_64-pc-linux-gnu",
         "R_PRINTCMD","/usr/bin/lpr",
-        "R_RD4DVI","ae",
         "R_RD4PDF","times,inconsolata,hyper",
         "R_SHARE_DIR","/usr/share/R/share",
         "R_SYSTEM_ABI","linux,gcc,gxx,gfortran,?",
         "R_TEXI2DVICMD","/usr/bin/texi2dvi",
         "R_UNZIPCMD","/usr/bin/unzip",
-        "R_VERSION","2.14.1",
+        "R_VERSION","2.15.1",
         "R_ZIPCMD","/usr/bin/zip",
         NULL
     };
