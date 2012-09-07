@@ -2,6 +2,18 @@
 \title{News for Package 'RInside'}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in RInside version 0.2.8 (2012-09-07)}{
+  \itemize{
+    \item Added CMake build support for armadillo and eigen examples,
+    once again kindly contributed by Peter Aberline
+    \item Corrected Windows package build to always generate a 64 bit
+    static library too
+    \item Updated package build to no longer require configure{.win} to
+    update the two header file supplying compile-time information;
+    tightened build dependencies on headers in Makevars
+    \item Improved examples/standard/Makefile.win by detecting architecture
+  }
+}
 \section{Changes in RInside version 0.2.7 (2012-08-12)}{
   \itemize{
     \item New fifth examples subdirectory 'armadillo' with two new
