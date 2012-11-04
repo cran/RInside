@@ -23,16 +23,13 @@
 #include <RInside.h>
 #include <Callbacks.h>
 
-RInside* RInside::instance_ = 0 ;
+RInside* RInside::instance_m = 0 ;
 
 #include <sys/time.h>           // gettimeofday()
 #include <stdint.h>		// uint64_t
 #include <sys/types.h>		// pid_t
 #include <unistd.h>		// getpid()
 
-
-
-bool verbose = false;
 const char *programName = "RInside";
 
 #ifdef WIN32
@@ -42,7 +39,6 @@ const char *programName = "RInside";
 #endif
 
 RInside::~RInside() {           // now empty as MemBuf is internal
-    logTxt("RInside::dtor BEGIN", verbose);
     R_dot_Last();
     R_RunExitFinalizers();
     R_CleanTempDir();
@@ -51,8 +47,7 @@ RInside::~RInside() {           // now empty as MemBuf is internal
     //fpu_setup(FALSE);
     //#endif
     Rf_endEmbeddedR(0);
-    logTxt("RInside::dtor END", verbose);
-    instance_ = 0 ;
+    instance_m = 0 ;
 }
 
 RInside::RInside()
@@ -60,7 +55,7 @@ RInside::RInside()
     : callbacks(0)
 #endif
 {
-    initialize( 0, 0, false );
+    initialize(0, 0, false, false, false);
 }
 
 #ifdef WIN32
@@ -97,28 +92,42 @@ int myAskYesNoCancel(const char *question) {
 
 #endif
 
-RInside::RInside(const int argc, const char* const argv[], const bool loadRcpp)
+RInside::RInside(const int argc, const char* const argv[], const bool loadRcpp,
+                 const bool verbose, const bool interactive)
 #ifdef RINSIDE_CALLBACKS
 : callbacks(0)
 #endif
 {
-    initialize( argc, argv, loadRcpp );
+    initialize(argc, argv, loadRcpp, verbose, interactive);
 }
 
 // TODO: use a vector<string> would make all this a bit more readable
-void RInside::initialize(const int argc, const char* const argv[], const bool loadRcpp) {
-    logTxt("RInside::ctor BEGIN", verbose);
+void RInside::initialize(const int argc, const char* const argv[], const bool loadRcpp, 
+                         const bool verbose, const bool interactive) {
 
-    if (instance_) {
+    if (instance_m) {
         throw std::runtime_error( "can only have one RInside instance" ) ;
     } else {
-        instance_ = this ;
+        instance_m = this ;
     }
 
-    verbose_m = false;          // Default is false
+    verbose_m = verbose;          	// Default is false
+    interactive_m = interactive;
 
     // generated from Makevars{.win}
     #include "RInsideEnvVars.h"
+
+    #ifdef WIN32
+    // we need a special case for Windows where users may deploy an RInside binary from CRAN
+    // which will have R_HOME set at compile time to CRAN's value -- so let's try to correct
+    // this here: a) allow user's setting of R_HOME and b) use R's get_R_HOME() function
+    if (getenv("R_HOME") == NULL) { 		// if on Windows and not set
+        char *rhome = get_R_HOME();		// query it, including registry
+        if (rhome != NULL) {                    // if something was found
+            setenv("R_HOME", get_R_HOME(), 1);  // store what we got as R_HOME
+        }					// this will now be used in next blocks 
+    }                                           
+    #endif
 
     for (int i = 0; R_VARS[i] != NULL; i+= 2) {
         if (getenv(R_VARS[i]) == NULL) { // if env variable is not yet set
@@ -149,7 +158,7 @@ void RInside::initialize(const int argc, const char* const argv[], const bool lo
 
     structRstart Rst;
     R_DefParams(&Rst);
-    Rst.R_Interactive = (Rboolean) FALSE;       // sets interactive() to eval to false
+    Rst.R_Interactive = (Rboolean) interactive_m;       // sets interactive() to eval to false
     #ifdef WIN32
     Rst.rhome = getenv("R_HOME");       // which is set above as part of R_VARS
     Rst.home = getRUser();
@@ -163,7 +172,7 @@ void RInside::initialize(const int argc, const char* const argv[], const bool lo
     #endif
     R_SetParams(&Rst);
 
-    global_env = R_GlobalEnv ;
+    global_env_m = R_GlobalEnv ;
 
     if (loadRcpp) {                     // if asked for, load Rcpp (before the autoloads)
         // Rf_install is used best by first assigning like this so that symbols get into the symbol table
@@ -184,7 +193,6 @@ void RInside::initialize(const int argc, const char* const argv[], const bool lo
     }
 
     init_rand();                        // for tempfile() to work correctly */
-    logTxt("RInside::ctor END", verbose);
 }
 
 void RInside::init_tempdir(void) {
@@ -261,8 +269,8 @@ void RInside::autoloads() {
     Rcpp::Language delayed_assign_call(Rcpp::Function("delayedAssign"),
                                        R_NilValue,     // arg1: assigned in loop
                                        R_NilValue,     // arg2: assigned in loop
-                                       global_env,
-                                       global_env.find(".AutoloadEnv")
+                                       global_env_m,
+                                       global_env_m.find(".AutoloadEnv")
                                        );
     Rcpp::Language::Proxy delayed_assign_name  = delayed_assign_call[1];
 
@@ -317,10 +325,11 @@ int RInside::parseEval(const std::string & line, SEXP & ans) {
     case PARSE_OK:
         // Loop is needed here as EXPSEXP might be of length > 1
         for(i = 0; i < Rf_length(cmdexpr); i++){
-            ans = R_tryEval(VECTOR_ELT(cmdexpr, i),NULL,&errorOccurred);
+            ans = R_tryEval(VECTOR_ELT(cmdexpr, i), global_env_m, &errorOccurred);
             if (errorOccurred) {
-                Rf_error("%s: Error in evaluating R code (%d)\n", programName, status);
+                if (verbose_m) Rf_warning("%s: Error in evaluating R code (%d)\n", programName, status);
                 UNPROTECT(2);
+                mb_m.rewind();
                 return 1;
             }
             if (verbose_m) {
@@ -333,21 +342,24 @@ int RInside::parseEval(const std::string & line, SEXP & ans) {
         // need to read another line
         break;
     case PARSE_NULL:
-        Rf_error("%s: ParseStatus is null (%d)\n", programName, status);
+        if (verbose_m) Rf_warning("%s: ParseStatus is null (%d)\n", programName, status);
         UNPROTECT(2);
+        mb_m.rewind();
         return 1;
         break;
     case PARSE_ERROR:
-        Rf_error("Parse Error: \"%s\"\n", line.c_str());
+        if (verbose_m) Rf_warning("Parse Error: \"%s\"\n", line.c_str());
         UNPROTECT(2);
+        mb_m.rewind();
         return 1;
         break;
     case PARSE_EOF:
-        Rf_error("%s: ParseStatus is eof (%d)\n", programName, status);
+        if (verbose_m) Rf_warning("%s: ParseStatus is eof (%d)\n", programName, status);
         break;
     default:
-        Rf_error("%s: ParseStatus is not documented %d\n", programName, status);
+        if (verbose_m) Rf_warning("%s: ParseStatus is not documented %d\n", programName, status);
         UNPROTECT(2);
+        mb_m.rewind();
         return 1;
         break;
     }
@@ -363,6 +375,11 @@ void RInside::parseEvalQ(const std::string & line) {
     }
 }
 
+void RInside::parseEvalQNT(const std::string & line) {
+    SEXP ans;
+    parseEval(line, ans);
+}
+
 RInside::Proxy RInside::parseEval(const std::string & line) {
     SEXP ans;
     int rc = parseEval(line, ans);
@@ -372,12 +389,18 @@ RInside::Proxy RInside::parseEval(const std::string & line) {
     return Proxy( ans );
 }
 
+RInside::Proxy RInside::parseEvalNT(const std::string & line) {
+    SEXP ans;
+    parseEval(line, ans);
+    return Proxy( ans );
+}
+
 Rcpp::Environment::Binding RInside::operator[]( const std::string& name ){
-    return global_env[name];
+    return global_env_m[name];
 }
 
 RInside& RInside::instance(){
-    return *instance_ ;
+    return *instance_m;
 }
 
 /* callbacks */
