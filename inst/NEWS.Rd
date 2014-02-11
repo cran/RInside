@@ -2,6 +2,31 @@
 \title{News for Package 'RInside'}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in RInside version 0.2.11 (2014-02-11)}{
+  \itemize{
+    \item Updated for \cpkg{Rcpp} 0.11.0:
+    \itemize{
+      \item Updated initialization by assigning global environment via
+      pointer only after R itself has been initialized -- with special
+      thanks to Kevin Ushey for the fix
+      \item Updated \code{DESCRIPTION} with \code{Imports:} instead of
+      \code{Depends:}
+      \item Added correspondiing \code{importFrom(Rcpp, evalCpp)} to
+      \code{NAMESPACE} 
+      \item Noted in all \code{inst/examples/*/Makefile} that
+      \cpkg{Rcpp} no longer a library argument, but left code for
+      backwards compatibility in case 0.11.0 is not yet installed.
+    }
+    \item Added \code{--vanilla --slave} to default arguments for R
+    initialization 
+    \item Added a few more explicit #include statements in the \code{qt}
+    example which Qt 5.1 now appears to require -- with thanks to
+    Spencer Behling for the patch
+    \item Added new MPI example with worker functions and RInside
+    instance, kindly contributed by Nicholas Pezolano and Martin Morgan
+  }
+}
+
 \section{Changes in RInside version 0.2.10 (2012-12-05)}{
   \itemize{
     \item Adjusted to change in R which requires turning checking of the
@@ -9,7 +34,7 @@
     as in the Wt examples. As there are have been no side-effects, this
     is enabled by default on all platforms (with the exception of Windows).
     \item Added new \sQuote{threads} example directory with a simple
-    example based on a Boost mutex use example.
+    example based on a Boost mutex example.
     \item Disabled two examples (passing an external function down)
     which do not currently work; external pointer use should still work.
   }

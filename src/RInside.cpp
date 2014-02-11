@@ -3,7 +3,7 @@
 // RInside.cpp: R/C++ interface class library -- Easier R embedding into C++
 //
 // Copyright (C) 2009         Dirk Eddelbuettel
-// Copyright (C) 2010 - 2012  Dirk Eddelbuettel and Romain Francois
+// Copyright (C) 2010 - 2013  Dirk Eddelbuettel and Romain Francois
 //
 // This file is part of RInside.
 //
@@ -43,11 +43,12 @@ RInside::~RInside() {           // now empty as MemBuf is internal
     //#endif
     Rf_endEmbeddedR(0);
     instance_m = 0 ;
+    delete global_env_m;
 }
 
-RInside::RInside()
+RInside::RInside(): global_env_m(NULL)
 #ifdef RINSIDE_CALLBACKS
-    : callbacks(0)
+    , callbacks(0)
 #endif
 {
     initialize(0, 0, false, false, false);
@@ -90,7 +91,7 @@ int myAskYesNoCancel(const char *question) {
 RInside::RInside(const int argc, const char* const argv[], const bool loadRcpp,
                  const bool verbose, const bool interactive)
 #ifdef RINSIDE_CALLBACKS
-: callbacks(0)
+    		: callbacks(0)
 #endif
 {
     initialize(argc, argv, loadRcpp, verbose, interactive);
@@ -140,9 +141,9 @@ void RInside::initialize(const int argc, const char* const argv[], const bool lo
 
     init_tempdir();
 
-    const char *R_argv[] = {(char*)programName, "--gui=none", "--no-save", "--no-readline", "--silent", "", ""};
-    const char *R_argv_opt[] = {"--vanilla", "--slave"};
-    int R_argc = (sizeof(R_argv) - sizeof(R_argv_opt) ) / sizeof(R_argv[0]);
+    const char *R_argv[] = {(char*)programName, "--gui=none", "--no-save", 
+                            "--no-readline", "--silent", "--vanilla", "--slave"};
+    int R_argc = sizeof(R_argv) / sizeof(R_argv[0]);
     Rf_initEmbeddedR(R_argc, (char**)R_argv);
 
     #ifndef WIN32
@@ -167,9 +168,7 @@ void RInside::initialize(const int argc, const char* const argv[], const bool lo
     #endif
     R_SetParams(&Rst);
 
-    global_env_m = R_GlobalEnv ;
-
-    if (loadRcpp) {                     // if asked for, load Rcpp (before the autoloads)
+    if (true || loadRcpp) {             // we always need Rcpp, so load it anyway
         // Rf_install is used best by first assigning like this so that symbols get into the symbol table
         // where they cannot be garbage collected; doing it on the fly does expose a minuscule risk of garbage
         // collection -- with thanks to Doug Bates for the explanation and Luke Tierney for the heads-up
@@ -178,7 +177,9 @@ void RInside::initialize(const int argc, const char* const argv[], const bool lo
         Rf_eval(Rf_lang2(suppressMessagesSymbol, Rf_lang2(requireSymbol, Rf_mkString("Rcpp"))), R_GlobalEnv);
     }
 
-    autoloads();                        // loads all default packages
+    global_env_m = new Rcpp::Environment();         // member variable for access to R's global environment 
+
+    autoloads();                        // loads all default packages, using code autogenerate from Makevars{,.win}
 
     if ((argc - optind) > 1){           // for argv vector in Global Env */
         Rcpp::CharacterVector s_argv( argv+(1+optind), argv+argc );
@@ -264,8 +265,8 @@ void RInside::autoloads() {
     Rcpp::Language delayed_assign_call(Rcpp::Function("delayedAssign"),
                                        R_NilValue,     // arg1: assigned in loop
                                        R_NilValue,     // arg2: assigned in loop
-                                       global_env_m,
-                                       global_env_m.find(".AutoloadEnv")
+                                       *global_env_m,
+                                       global_env_m->find(".AutoloadEnv")
                                        );
     Rcpp::Language::Proxy delayed_assign_name  = delayed_assign_call[1];
 
@@ -320,7 +321,7 @@ int RInside::parseEval(const std::string & line, SEXP & ans) {
     case PARSE_OK:
         // Loop is needed here as EXPSEXP might be of length > 1
         for(i = 0; i < Rf_length(cmdexpr); i++){
-            ans = R_tryEval(VECTOR_ELT(cmdexpr, i), global_env_m, &errorOccurred);
+            ans = R_tryEval(VECTOR_ELT(cmdexpr, i), *global_env_m, &errorOccurred);
             if (errorOccurred) {
                 if (verbose_m) Rf_warning("%s: Error in evaluating R code (%d)\n", programName, status);
                 UNPROTECT(2);
@@ -391,7 +392,7 @@ RInside::Proxy RInside::parseEvalNT(const std::string & line) {
 }
 
 Rcpp::Environment::Binding RInside::operator[]( const std::string& name ){
-    return global_env_m[name];
+    return (*global_env_m)[name];
 }
 
 RInside& RInside::instance(){
