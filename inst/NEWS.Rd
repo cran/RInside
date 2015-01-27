@@ -2,6 +2,28 @@
 \title{News for Package 'RInside'}
 \newcommand{\cpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
+\section{Changes in RInside version 0.2.12 (2015-01-27)}{
+  \itemize{
+    \item Several new examples have been added (with most of the work
+    done by Christian Authmann):
+    \itemize{
+      \item \code{standard/rinside_sample15.cpp} shows how to create a
+      lattice plot (following a StackOverflow question)
+      \item \code{standard/rinside_sample16.cpp} shows object wrapping,
+      and exposing of C++ functions
+      \item \code{standard/rinside_sample17.cpp} does the same via C++11
+      \item \code{sandboxed_servers/} adds an entire framework of
+      client/server communication outside the main process (but using a
+      subset of supported types)
+    }
+    \item \code{standard/rinside_module_sample9.cpp} was repaired
+    following a fix to \code{InternalFunction} in \cpkg{Rcpp}
+    \item For the seven example directories which contain a
+    \code{Makefile}, the \code{Makefile} was renamed \code{GNUmakefile}
+    to please \code{R CMD check} as well as the CRAN Maintainers.
+  }
+}
+
 \section{Changes in RInside version 0.2.11 (2014-02-11)}{
   \itemize{
     \item Updated for \cpkg{Rcpp} 0.11.0:
@@ -14,12 +36,12 @@
       \item Added correspondiing \code{importFrom(Rcpp, evalCpp)} to
       \code{NAMESPACE} 
       \item Noted in all \code{inst/examples/*/Makefile} that
-      \cpkg{Rcpp} no longer a library argument, but left code for
+      \cpkg{Rcpp} no longer requires a library argument, but left code for
       backwards compatibility in case 0.11.0 is not yet installed.
     }
     \item Added \code{--vanilla --slave} to default arguments for R
     initialization 
-    \item Added a few more explicit #include statements in the \code{qt}
+    \item Added a few more explicit \code{#include} statements in the \code{qt}
     example which Qt 5.1 now appears to require -- with thanks to
     Spencer Behling for the patch
     \item Added new MPI example with worker functions and RInside

@@ -1,3 +1,61 @@
+2015-01-27  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION: Release 0.2.12
+
+2015-01-08  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Description): Updated Description: to note that we now
+	have eight examples subdirectories, and that (all but one of) these
+	example directories use Makefiles with GNU make extensions, which
+	have therefore been renamed to GNUmakefile to please R CMD check
+	* DESCRIPTIION (Version): Bumped Version: and Date:
+
+	* inst/examples/armadillo/GNUmakefile: Renamed from Makefile
+	* inst/examples/eigen/GNUmakefile: Ditto
+	* inst/examples/mpi/GNUmakefile: Ditto
+	* inst/examples/sandboxed_server/GNUmakefile: Ditto
+	* inst/examples/standard/GNUmakefile: Ditto
+	* inst/examples/threads/GNUmakefile: Ditto
+	* inst/examples/wt/GNUmakefile: Ditto
+	
+2014-11-25  Christian Authmann  <christian@authmann.de>
+
+	* inst/examples/sandboxed_server/: New example of a 'sandboxed'
+	server for safer communication [of a subset of types] out of process
+
+2014-10-10  Christian Authmann  <christian@authmann.de>
+
+	* inst/examples/standard/rinside_sample16.cpp: New example
+	demonstrating object wrapping and exposing C++ functions
+	* inst/examples/standard/rinside_sample17.cpp: New example
+	demonstrating the same using C++11 features
+
+2014-09-08  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/RInside.cpp (WriteConsole_): Applied correction by Christian
+	Authmann in GitHub PR #5
+	* inst/examples/standard/rinside_callbacks1.cpp: New example also
+	supplied by Christian Authmann in PR #5
+
+2014-07-28  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/standard/rinside_module_sample0.cpp: Commented-out
+	two short segments in already-disabled file which remains defunct
+
+2014-07-08  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/standard/rinside_module_sample9.cpp: Repaired
+	  following the fix to Rcpp's InternalFunction
+
+2014-06-24  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/standard/rinside_sample15.cpp (main): New example
+	showing how to create a lattice plot, in response to a SO question
+
+2014-03-24  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/Makevars (PKG_CPPFLAGS): Use '=' instead of '+='
+
 2014-02-11  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION: Release 0.2.11

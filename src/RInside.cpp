@@ -3,7 +3,7 @@
 // RInside.cpp: R/C++ interface class library -- Easier R embedding into C++
 //
 // Copyright (C) 2009         Dirk Eddelbuettel
-// Copyright (C) 2010 - 2013  Dirk Eddelbuettel and Romain Francois
+// Copyright (C) 2010 - 2015  Dirk Eddelbuettel and Romain Francois
 //
 // This file is part of RInside.
 //
@@ -432,7 +432,7 @@ int Callbacks::ReadConsole_( const char* prompt, unsigned char* buf, int len, in
 
 void Callbacks::WriteConsole_( const char* buf, int len, int oType ){
     if( len ){
-        buffer.assign( buf, buf + len - 1 ) ;
+        buffer.assign( buf, len ) ;
         WriteConsole( buffer, oType) ;
     }
 }
