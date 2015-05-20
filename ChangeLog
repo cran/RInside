@@ -1,3 +1,18 @@
+2015-05-20  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION: Release 0.2.13
+
+2015-05-16  Dirk Eddelbuettel  <edd@debian.org>
+
+	* .travis.yml (install): Use ppa for r-cran-rcpp in .travis.yml
+
+2015-05-15  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/include/RInsideCommon.h: Do not include RInterface.h here as
+	the file gets included from several source files
+
+	* src/RInside.cpp: But rather include RInterface.h here just once
+
 2015-01-27  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION: Release 0.2.12
@@ -17,7 +32,7 @@
 	* inst/examples/standard/GNUmakefile: Ditto
 	* inst/examples/threads/GNUmakefile: Ditto
 	* inst/examples/wt/GNUmakefile: Ditto
-	
+
 2014-11-25  Christian Authmann  <christian@authmann.de>
 
 	* inst/examples/sandboxed_server/: New example of a 'sandboxed'

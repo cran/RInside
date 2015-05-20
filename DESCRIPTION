@@ -1,11 +1,11 @@
 Package: RInside
 Title: C++ Classes to Embed R in C++ Applications
-Version: 0.2.12
-Date: 2015-01-27
+Version: 0.2.13
+Date: 2015-05-20
 Author: Dirk Eddelbuettel and Romain Francois
 Maintainer: Dirk Eddelbuettel <edd@debian.org>
 Description: C++ classes to embed R in C++ applications
- The RInside packages makes it easier to have 'R inside' your C++ application
+ The 'RInside' packages makes it easier to have "R inside" your C++ application
  by providing a C++ wrapper class providing the R interpreter.
  .
    As R itself is embedded into your application, a shared library build of R
@@ -14,14 +14,14 @@ Description: C++ classes to embed R in C++ applications
  .
    Numerous examples are provided in the eight subdirectories of the examples/
  directory of the installed package: standard, mpi (for parallel computing)
- qt (showing how to embed RInside inside a Qt GUI application), wt (showing
- how to build a 'web-application' using the Wt toolkit), armadillo (for
- RInside use with RcppArmadillo) and eigen (for RInside use with RcppEigen).
+ qt (showing how to embed 'RInside' inside a Qt GUI application), wt (showing
+ how to build a "web-application" using the Wt toolkit), armadillo (for
+ 'RInside' use with 'RcppArmadillo') and eigen (for 'RInside' use with 'RcppEigen').
  The example use GNUmakefile(s) with GNU extensions, so a GNU make is required
  (and will use the GNUmakefile automatically).
  .
    Doxygen-generated documentation of the C++ classes is available at the
- RInside website as well.
+ 'RInside' website as well.
 Depends: R (>= 2.10.0)
 Imports: Rcpp (>= 0.11.0)
 LinkingTo: Rcpp
@@ -30,7 +30,7 @@ License: GPL (>= 2)
 BugReports: https://github.com/eddelbuettel/rinside/issues
 MailingList: Please send questions and comments regarding RInside to
         rcpp-devel@lists.r-forge.r-project.org
-Packaged: 2015-01-28 00:08:21.520941 UTC; edd
 NeedsCompilation: yes
+Packaged: 2015-05-20 12:59:06.680335 UTC; edd
 Repository: CRAN
-Date/Publication: 2015-01-28 11:38:15
+Date/Publication: 2015-05-20 15:19:30
