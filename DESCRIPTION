@@ -1,7 +1,7 @@
 Package: RInside
 Title: C++ Classes to Embed R in C++ Applications
-Version: 0.2.13
-Date: 2015-05-20
+Version: 0.2.14
+Date: 2017-04-28
 Author: Dirk Eddelbuettel and Romain Francois
 Maintainer: Dirk Eddelbuettel <edd@debian.org>
 Description: C++ classes to embed R in C++ applications
@@ -31,6 +31,6 @@ BugReports: https://github.com/eddelbuettel/rinside/issues
 MailingList: Please send questions and comments regarding RInside to
         rcpp-devel@lists.r-forge.r-project.org
 NeedsCompilation: yes
-Packaged: 2015-05-20 12:59:06.680335 UTC; edd
+Packaged: 2017-04-28 11:46:12.919864 UTC; edd
 Repository: CRAN
-Date/Publication: 2015-05-20 15:19:30
+Date/Publication: 2017-05-05 03:19:32 UTC

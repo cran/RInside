@@ -1,3 +1,48 @@
+2017-04-27  Dirk Eddelbuettel  <edd@debian.org>
+
+	* .travis.yml: Switch to using run.sh for Travis CI
+
+	* inst/include/RInsideCommon.h (HAVE_UINTPTR_T): Protect behind #ifndef
+
+2017-02-10  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Roll minor version
+
+	* README.md: Use canonical URLs
+
+	* inst/NEWS.Rd: Updated to use \CRANpkg{}
+
+	* cleanup: Call GNUmakefile in examples directories too
+
+2017-02-08  Łukasz Łaniewski-Wołłk  <llaniewski@gmail.com>
+
+	* src/RInside.cpp (initialize): In interactive mode, allow use of
+	readline
+
+	* inst/examples/standard/rinside_interactive0.cpp: New example of
+	a planetary motion solver with console for parameter override
+
+2017-02-08  Dirk Eddelbuettel  <edd@max.eddelbuettel.com>
+
+	* inst/include/RInside.h (R): Move repl() declaration outside #ifdef
+
+	* src/RInside.cpp (repl): Ditto for definition
+
+2016-02-11  Kevin Ushey <kevinushey@gmail.com>
+
+	* src/RInside.cpp: Check for _WIN32 instead of WIN32
+
+2016-02-08  Dirk Eddelbuettel  <edd@debian.org>
+
+	* inst/examples/wt/GNUmakefile: Add -lboost_system
+
+2016-02-07  Mattias Ellert <mattias.ellert@fysast.uu.se>
+
+	* src/Makevars: Also use LDFLAGS
+
+	* src/tools/RInsideEnvVars.r: Exclude three more variables containing
+	the build path
+
 2015-05-20  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION: Release 0.2.13

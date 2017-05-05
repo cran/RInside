@@ -3,7 +3,7 @@
 // RInside.cpp: R/C++ interface class library -- Easier R embedding into C++
 //
 // Copyright (C) 2009         Dirk Eddelbuettel
-// Copyright (C) 2010 - 2015  Dirk Eddelbuettel and Romain Francois
+// Copyright (C) 2010 - 2017  Dirk Eddelbuettel and Romain Francois
 //
 // This file is part of RInside.
 //
@@ -22,7 +22,7 @@
 
 #include <RInside.h>
 #include <Callbacks.h>
-#ifndef WIN32
+#ifndef _WIN32
   #define R_INTERFACE_PTRS
   #include <Rinterface.h>
 #endif
@@ -31,7 +31,7 @@ RInside* RInside::instance_m = 0 ;
 
 const char *programName = "RInside";
 
-#ifdef WIN32
+#ifdef _WIN32
     // on Windows, we need to provide setenv which is in the file setenv.c here
     #include "setenv/setenv.c"
     extern int optind;
@@ -58,7 +58,7 @@ RInside::RInside(): global_env_m(NULL)
     initialize(0, 0, false, false, false);
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 static int myReadConsole(const char *prompt, char *buf, int len, int addtohistory) {
     fputs(prompt, stdout);
     fflush(stdout);
@@ -117,7 +117,7 @@ void RInside::initialize(const int argc, const char* const argv[], const bool lo
     // generated from Makevars{.win}
     #include "RInsideEnvVars.h"
 
-    #ifdef WIN32
+    #ifdef _WIN32
     // we need a special case for Windows where users may deploy an RInside binary from CRAN
     // which will have R_HOME set at compile time to CRAN's value -- so let's try to correct
     // this here: a) allow user's setting of R_HOME and b) use R's get_R_HOME() function
@@ -139,18 +139,19 @@ void RInside::initialize(const int argc, const char* const argv[], const bool lo
         }
     }
 
-    #ifndef WIN32
+    #ifndef _WIN32
     R_SignalHandlers = 0;               // Don't let R set up its own signal handlers
     #endif
 
     init_tempdir();
 
     const char *R_argv[] = {(char*)programName, "--gui=none", "--no-save", 
-                            "--no-readline", "--silent", "--vanilla", "--slave"};
+                            "--silent", "--vanilla", "--slave", "--no-readline"};
     int R_argc = sizeof(R_argv) / sizeof(R_argv[0]);
+    if (interactive_m) R_argc--; //Deleting the --no-readline option in interactive mode
     Rf_initEmbeddedR(R_argc, (char**)R_argv);
 
-    #ifndef WIN32
+    #ifndef _WIN32
     R_CStackLimit = -1;      		// Don't do any stack checking, see R Exts, '8.1.5 Threading issues'
     #endif
 
@@ -159,7 +160,7 @@ void RInside::initialize(const int argc, const char* const argv[], const bool lo
     structRstart Rst;
     R_DefParams(&Rst);
     Rst.R_Interactive = (Rboolean) interactive_m;       // sets interactive() to eval to false
-    #ifdef WIN32
+    #ifdef _WIN32
     Rst.rhome = getenv("R_HOME");       // which is set above as part of R_VARS
     Rst.home = getRUser();
     Rst.CharacterMode = LinkDLL;
@@ -407,6 +408,11 @@ RInside* RInside::instancePtr(){
     return instance_m;
 }
 
+void RInside::repl() {
+    R_ReplDLLinit();
+    while (R_ReplDLLdo1() > 0) {}
+}
+
 /* callbacks */
 
 #ifdef RINSIDE_CALLBACKS
@@ -472,7 +478,7 @@ void RInside_Busy( int which ){
 void RInside::set_callbacks(Callbacks* callbacks_){
     callbacks = callbacks_ ;
 
-#ifdef WIN32
+#ifdef _WIN32
     // do something to tell user that he doesn't get this
 #else
 
@@ -505,9 +511,6 @@ void RInside::set_callbacks(Callbacks* callbacks_){
 #endif
 }
 
-void RInside::repl(){
-    R_ReplDLLinit();
-    while( R_ReplDLLdo1() > 0 ) {}
-}
-
 #endif
+
+
