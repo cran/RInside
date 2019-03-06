@@ -1,3 +1,36 @@
+2019-03-05  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): New minor version
+
+	* src/RInside.cpp (initialize): Rewritten to use two (protected)
+	temporary variable to avoid any chance of allocation races [rchk]
+
+	* DESCRIPTION (Description): Edited linebreaks and wording
+
+2018-12-26  Zé Vinícius  <jvmirca@gmail.com>
+
+	* README.md: Correct typo in URL for Qt example
+
+2018-09-02  Dirk Eddelbuettel  <edd@debian.org>
+
+	* .travis.yml: Minor update to commented-out PPA for R 3.5
+
+2018-06-14  François-David Collin  <fradav@gmail.com>
+
+	* src/Makevars.win: Quote-protect path for Rscript
+
+2017-08-17  Jonathon Love  <jon@thon.cc>
+
+	* src/setenv/setenv.c: Extend backslash handling on Windows
+
+2017-08-16  Jonathon Love  <jon@thon.cc>
+
+	* src/RInside.cpp: On Windows, copy getenv("R_HOME") result
+
+2017-04-28  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version): Release 0.2.14
+
 2017-04-27  Dirk Eddelbuettel  <edd@debian.org>
 
 	* .travis.yml: Switch to using run.sh for Travis CI

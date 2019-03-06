@@ -3,8 +3,22 @@
 \newcommand{\ghpr}{\href{https://github.com/eddelbuettel/rinside/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/eddelbuettel/rinside/issues/#1}{##1}}
 
+\section{Changes in RInside version 0.2.15 (2019-03-06)}{
+  \itemize{
+    \item Improved Windows build support by copying
+    \code{getenv("R_HOME")} result and improving backslash handling in
+    environemt variable setting (Jonathon Love in \ghpr{27} and
+    \ghpr{28})
+    \item Improved Windows build support by quote-protecting
+    \code{Rscript} path in \code{Makevars.win} (François-David Collin in
+    \ghpr{33})
+    \item A URL was corrected in README.md (Zé Vinícius in \ghpr{34}).
+    \item Temporary \code{SEXP} objects are handled more carefully at
+    initialization to satisfy `rchk` (Dirk in \ghpr{36})
+  }
+}
 
-\section{Changes in RInside version 0.2.14 (2017-xx-yy)}{
+\section{Changes in RInside version 0.2.14 (2017-04-28)}{
   \itemize{
     \item Interactive mode can use readline REPL (Łukasz Łaniewski-Wołłk
     in \ghpr{25}, and Dirk in \ghpr{26})

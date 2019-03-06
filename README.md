@@ -1,4 +1,4 @@
-## RInside [![Build Status](https://travis-ci.org/eddelbuettel/rinside.svg)](https://travis-ci.org/eddelbuettel/rinside) [![License](http://img.shields.io/badge/license-GPL%20%28%3E=%202%29-brightgreen.svg?style=flat)](http://www.gnu.org/licenses/gpl-2.0.html) [![CRAN](http://www.r-pkg.org/badges/version/RInside)](https://cran.r-project.org/package=RInside) [![Downloads](http://cranlogs.r-pkg.org/badges/RInside?color=brightgreen)](https://cran.r-project.org/package=RInside)
+## RInside [![Build Status](https://travis-ci.org/eddelbuettel/rinside.svg)](https://travis-ci.org/eddelbuettel/rinside) [![License](http://img.shields.io/badge/license-GPL%20%28%3E=%202%29-brightgreen.svg?style=flat)](http://www.gnu.org/licenses/gpl-2.0.html) [![CRAN](http://www.r-pkg.org/badges/version/RInside)](https://cran.r-project.org/package=RInside) [![Dependencies](https://tinyverse.netlify.com/badge/RInside)](https://cran.r-project.org/package=RInside) [![Downloads](http://cranlogs.r-pkg.org/badges/RInside?color=brightgreen)](https://cran.r-project.org/package=RInside)
 
 Easy embedding of R inside C++
 
@@ -39,7 +39,7 @@ this application for showing how to use R (to estimate densities) inside a C++ e
 ![](https://github.com/eddelbuettel/rinside/blob/master/local/qtdensitySVG.png)
 
 The code is portable across operating systems.  Similar, the 
-[Wt example directory](https://github.com/eddelbuettel/rinside/tree/master/inst/examples/qt)
+[Wt example directory](https://github.com/eddelbuettel/rinside/tree/master/inst/examples/wt)
 contains this C++-based web application doing the same:
 
 ![](https://github.com/eddelbuettel/rinside/blob/master/local/wtdensity.png)
