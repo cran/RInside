@@ -1,3 +1,41 @@
+2022-03-31  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Release 0.2.17
+
+	* README.md: Four more URLs were updated
+
+2022-03-30  Dirk Eddelbuettel  <edd@debian.org>
+
+	* src/RInside.cpp (myReadConsole): Windows-only patch provided by
+	Tomas Kalibera for upcoming R 4.2.0, adjusted for R (>= 4.2.0) too
+
+2021-12-23  Dirk Eddelbuettel  <edd@debian.org>
+
+	* README.md: Remove unused continuous integration artifact and badge
+
+2021-10-15  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (Version, Date): Roll minor version
+
+2021-05-27  Dirk Eddelbuettel  <edd@debian.org>
+
+	* DESCRIPTION (URL): Add github repo URL to DESCRIPTION
+
+2021-01-17  Dirk Eddelbuettel  <edd@debian.org>
+
+        * .github/workflows/ci.yaml: Add CI runner using r-ci
+	* README.md: Add new badge
+
+2020-12-03  Dirk Eddelbuettel  <edd@debian.org>
+
+	* .travis.yml: Switch to r-ci using focal and bspm
+
+	* inst/examples/standard/GNUmakefile: Whitespace changes
+
+2020-08-16  Dirk Eddelbuettel  <edd@debian.org>
+
+	* README.md: Add a 'last commit' badge
+
 2020-03-12  Dirk Eddelbuettel  <edd@debian.org>
 
 	* DESCRIPTION (Version, Date): Release 0.2.16

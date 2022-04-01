@@ -1,13 +1,13 @@
-9378c10fa6035fdbbd0447e984c0c982 *ChangeLog
-e1d3b14f7831cefbaf65510de1a17277 *DESCRIPTION
+460a37e45f0afced0534b39a00bbee58 *ChangeLog
+4cb91b7f77ff9222cd6699fc36cf6862 *DESCRIPTION
 ff85fc8e8296eec31745e449f30212aa *NAMESPACE
 646cfa9b1e162d9aabfa9438fa2b540a *R/RInsidePaths.R
 4bcb62e5113ea661c4cfa4a88282a1a4 *R/RcppExports.R
 221b942b14cc416f187593b9a662d970 *R/zzz.R
-e8066faa85c22f118609fd8c49e10082 *README.md
+d5f948fc5817c857ef458a687e585ff4 *README.md
 1f1bdb65f9a4a553cb4cc3574707ec26 *cleanup
 a354953bc638adfe8fb1143a2428eb67 *cleanup.win
-8b0ea66ddf054b060ca75ddc731c13d1 *inst/NEWS.Rd
+32744678847e8a22399d25dbbb3ae132 *inst/NEWS.Rd
 6721423fd66ead7a6fd303e6ec8b4d49 *inst/THANKS
 f80b0a9850ed5c911c690ec9f6520570 *inst/examples/armadillo/GNUmakefile
 355f2e6af82135dac79496afd1ae57bc *inst/examples/armadillo/cmake/CMakeLists.txt
@@ -59,7 +59,7 @@ ae9378659614ffc4680a13c99bd92aa8 *inst/examples/sandboxed_server/datatypes/foo_r
 9864204bed904f145d8fb65fb0b452a5 *inst/examples/sandboxed_server/server/rinside_callbacks.h
 514aaa118aa669e53b538293bd3ae75c *inst/examples/sandboxed_server/server/rinsideserver.cpp
 bece4eb3d2002c32b9687cf34a32819d *inst/examples/sandboxed_server/server/rinsideserver.h
-2ea1628c2ce8eda399613f87a8fff0af *inst/examples/standard/GNUmakefile
+40f6afeff176eb8730957a234f111b8a *inst/examples/standard/GNUmakefile
 896df6d28697d491146642d0a82f29bc *inst/examples/standard/Makefile.win
 0069cfcbdad4da03a9cf29a45e51f175 *inst/examples/standard/cmake/CMakeLists.txt
 7828adbb3a1488e1f70d46bb3dcc7095 *inst/examples/standard/rinside_callbacks0.cpp
@@ -105,7 +105,7 @@ a07df2e44b20f51d8b8f3b5d3fb02e15 *inst/include/RInside.h
 01b4603079d1372444c3aa1e638f59cb *src/Makevars
 bfc3d61e790353312812f3caada0c950 *src/Makevars.win
 c47d49883a572ae1efcc3f075875f8af *src/MemBuf.cpp
-4ee4ede1901d0bfdf9382449feb50534 *src/RInside.cpp
+13907283735d7f52d86421598c45c521 *src/RInside.cpp
 0c66b3b9528f011fb699434ce5e66346 *src/RInside_C.cpp
 6c018a81c82afd693e27d1d37af60287 *src/RcppExports.cpp
 428c88042a47cfb57a7a84b3eff13703 *src/compiler.cpp
